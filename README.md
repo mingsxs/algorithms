@@ -1,6 +1,6 @@
-# algorithms
+# Algorithms
 A set of common algorithm code implementations.   
-#### task list   
+- #### Task List   
 - [x] Permutation.   
 - [x] MD5.   
 - [ ] Duplicates-remove.   
