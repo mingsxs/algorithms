@@ -16,15 +16,15 @@ static union {char c[4]; int32_t test;} endian_test = {{'l', '?', '?', 'b'}};
 
 /* endianness tranform */
 // For big-endian to little-endian
-#define BigToLittle16(X)					\
-	((((uint16_t)(X) & 0xff00) >> 8) |		\
+#define BigToLittle16(X)			\
+	((((uint16_t)(X) & 0xff00) >> 8) |	\
 	(((uint16_t)(X) & 0x00ff) << 8))
-#define BigToLittle32(X)					\
+#define BigToLittle32(X)			\
 	((((uint32_t)(X) & 0xff000000) >> 24) |	\
 	(((uint32_t)(X) & 0x00ff0000) >> 8) |	\
 	(((uint32_t)(X) & 0x0000ff00) << 8) |	\
 	(((uint32_t)(X) & 0x000000ff) << 24))
-#define BigToLittle64(X)					\
+#define BigToLittle64(X)				\
 	((((uint64_t)(X) & 0xff00000000000000) >> 56) |	\
 	(((uint64_t)(X) & 0x00ff000000000000) >> 40) |	\
 	(((uint64_t)(X) & 0x0000ff0000000000) >> 24) |	\
@@ -59,32 +59,32 @@ static uint8_t padding[64] = {	0x80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
 #define H(x, y, z)		((x) ^ (y) ^ (z))
 #define I(x, y, z)		((y) ^ ((x) | ~(z)))
 
-#define FF(a, b, c, d, x, s, t)					\
-	{											\
+#define FF(a, b, c, d, x, s, t)				\
+	{						\
 		(a) += F((b), (c), (d)) + (x) + (t);	\
-		(a) = ROTL32((a), (s));					\
-		(a) += (b);								\
+		(a) = ROTL32((a), (s));			\
+		(a) += (b);				\
 	}
 
-#define GG(a, b, c, d, x, s, t)					\
-	{											\
+#define GG(a, b, c, d, x, s, t)				\
+	{						\
 		(a) += G((b), (c), (d)) + (x) + (t);	\
-		(a) = ROTL32((a), (s));					\
-		(a) += (b);								\
+		(a) = ROTL32((a), (s));			\
+		(a) += (b);				\
 	}
 
-#define HH(a, b, c, d, x, s, t)					\
-	{											\
+#define HH(a, b, c, d, x, s, t)				\
+	{						\
 		(a) += H((b), (c), (d)) + (x) + (t);	\
-		(a) = ROTL32((a), (s));					\
-		(a) += (b);								\
+		(a) = ROTL32((a), (s));			\
+		(a) += (b);				\
 	}
 
-#define II(a, b, c, d, x, s, t)					\
-	{											\
+#define II(a, b, c, d, x, s, t)				\
+	{						\
 		(a) += I((b), (c), (d)) + (x) + (t);	\
-		(a) = ROTL32((a), (s));					\
-		(a) += (b);								\
+		(a) = ROTL32((a), (s));			\
+		(a) += (b);				\
 	}
 
 /*
@@ -93,16 +93,16 @@ static uint8_t padding[64] = {	0x80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
  * Y: uint8_t* input
  * z: size_t byte_len
  */
-#define DECODE(X, Y, Z)							\
-{												\
-	int i, j;									\
-	for((i)=0,(j)=0; (j)<(Z); (i)++,(j)+=4)		\
-	{											\
+#define DECODE(X, Y, Z)						\
+{								\
+	int i, j;						\
+	for((i)=0,(j)=0; (j)<(Z); (i)++,(j)+=4)			\
+	{							\
 		X[(i)] = (((uint32_t)(Y)[(j)])) |		\
 			(((uint32_t)(Y)[(j)+1]) << 8) |		\
 			(((uint32_t)(Y)[(j)+2]) << 16) |	\
 			(((uint32_t)(Y)[(j)+3]) << 24);		\
-	}											\
+	}							\
 }
 
 /*
@@ -111,16 +111,16 @@ static uint8_t padding[64] = {	0x80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
  * Y: uint32_t* input
  * z: size_t byte_len
  */
-#define ENCODE(X, Y, Z)							\
-{												\
-	int i, j;									\
-	for((i)=0,(j)=0; (j)<(Z); (i)++,(j)+=4)		\
-	{											\
-		X[(j)] = (uint8_t)((Y)[(i)] & 0xff);			\
+#define ENCODE(X, Y, Z)						\
+{								\
+	int i, j;						\
+	for((i)=0,(j)=0; (j)<(Z); (i)++,(j)+=4)			\
+	{							\
+		X[(j)] = (uint8_t)((Y)[(i)] & 0xff);		\
 		X[(j)+1] = (uint8_t)(((Y)[(i)] >> 8) & 0xff);	\
 		X[(j)+2] = (uint8_t)(((Y)[(i)] >> 16) & 0xff);	\
 		X[(j)+3] = (uint8_t)(((Y)[(i)] >> 24) & 0xff);	\
-	}													\
+	}							\
 }
 
 /* context_p is the pointer to current md5 context, data is input message chunk, data_len is data size in byte.
