@@ -1,5 +1,6 @@
 /*
  * Header file for md5.c source.
+ * Ming Li(adagio.ming@gmail.com)
  * Date: 2018/11/16
  * Note - this source comes from RFC1321 for MD5 algorithm.
  */
