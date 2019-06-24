@@ -51,11 +51,11 @@ extern "C" {
 
 /* MD5 context container */
 typedef struct {
-	uint32_t state[4];				/*state (ABCD), state[0] is low-order, corresponds to A*/
+	uint32_t state[4];			/*state (ABCD), state[0] is low-order, corresponds to A*/
 	uint32_t bitcount[2];			/*length of bits, modulo 2^64 bit, also maximum, count[0] is low-order byte*/
 	uint32_t index[2];
 	uint32_t bytecount[2];
-	uint8_t buffer[64];				/*512 bit input message chunk for per round, 64x8 = 512bit*/
+	uint8_t buffer[64];			/*512 bit input message chunk for per round, 64x8 = 512bit*/
 } MD5_CTX;
 
 /* initialize A,B,C,D and message bit length */
