@@ -2,7 +2,7 @@
 A set of common algorithm code implementations.   
 - #### Task List   
 - [x] Permutation.   
-- [x] MD5.   
+- [x] MD5 checksum.   
 - [ ] O(1) time complexity duplicates-remove.   
 - [ ] KMP-pattern-search.  
 - [ ] Common sort algorithms.  
