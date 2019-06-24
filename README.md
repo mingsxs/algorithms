@@ -5,6 +5,6 @@ A set of common algorithm code implementations.
 - [x] MD5.   
 - [ ] O(1) time complexity duplicates-remove.   
 - [ ] KMP-pattern-search.  
-- [ ] Sorts.  
+- [ ] Common sort algorithms.  
 - [ ] Non-cryptographic hash functions.   
  
