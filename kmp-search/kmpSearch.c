@@ -47,7 +47,6 @@ static void kmp_create_table(const char *pattern)
             }
         }
     }
-
 }
 
 
