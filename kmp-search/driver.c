@@ -1,3 +1,10 @@
+/*
+ * driver code for algorithm KMP pattern search.
+ * Ming Li(adagio.ming@gmail.com)
+ * 2019/07/18
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
