@@ -10,7 +10,6 @@
 #include <string.h>
 
 
-extern int kmp_search(char *source, char *pattern);
 
 static void strip_space(char *str) 
 {
@@ -34,7 +33,9 @@ static void stdin_flush(void)
 }
 
 int main(int argc, char **argv)
-{
+{   
+    extern int kmp_search(char *source, char *pattern);
+    
     int exit = 0;
     char source[64];
     char pattern[64];
