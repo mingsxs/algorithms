@@ -28,10 +28,10 @@ static void kmp_create_table(const char *pattern)
     /*
      * hopefully, it's very easy to understand.
      * j points to first part of the given pattern string which has all unique characters.
-     * i is traverse index of both the given pattern string and the kmp index table items.
+     * i is iteration index of both the given pattern string and the kmp index table items.
      * eg:
      *    if pattern is 'ABCDABE', j will always traverse within first part with all unique
-     *    characters 'ABCD', and i is the traverse index of whole pattern string and local
+     *    characters 'ABCD', and i is the iteration index of whole pattern string and local
      *    kmp index table.
      *
      */
