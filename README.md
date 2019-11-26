@@ -1,5 +1,5 @@
 # Algorithms
-A set of common algorithm code implementations.   
+A set of common algorithm coding practices.   
 - #### Task List   
 - [x] permutation.   
 - [x] md5 checksum.   
