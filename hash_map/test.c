@@ -72,6 +72,19 @@ int main(int argc, char **argv)
         iterator->next_one(iterator);
     }
 
+    int i = 30;
+    if(!hashmap_reset_iterator(map)) {
+        printf("reset iterator failed.\n");
+        map->destroy(&map);
+        return -1;
+    }
+    printf("reset loop starts here:\n");
+    while(--i > 0) {
+        printf("{ key: %s, value: %s, key raw hashcode: %lu, list index: %u, conflicts: %u }\n",
+            (char *)iterator->current->key, (char *)iterator->current->value, iterator->current->hashcode, iterator->lsidx, iterator->hashmap->conflicts);
+        iterator->next_one(iterator);
+    }
+
     map->destroy(&map);
 
     return 0;
