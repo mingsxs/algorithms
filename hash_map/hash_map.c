@@ -104,7 +104,7 @@ default_put(HashMap hashmap, void *key, size_t ksize, void *value)
     } else {
         Entry *indirect;
         for(indirect=&hashmap->list[lsidx]; *indirect; indirect=&(*indirect)->next)
-            if(entry->hashcode == (*indirect)->hashcode) { // key already exists, update value
+            if(entry->hashcode == (*indirect)->hashcode) { // update value if key already exists, this behaves likely with python dict update.
                 (*indirect)->value = value;
                 free(entry);
                 return ;
