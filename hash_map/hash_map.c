@@ -375,16 +375,17 @@ hashmap_reset_iterator(HashMap hashmap)
     if(!hashmap)
         return false;
 
-    if(hashmap->iterator)
-        hashmap->iterator->free_iterator(&hashmap->iterator);
+    if(hashmap->iterator == NULL) 
+        hashmap->iterator = newHashMapIterator();
 
-    HashMapIterator iterator = newHashMapIterator();
+    HashMapIterator iterator = hashmap->iterator;
+
     iterator->iterations = 1;
-    iterator->lsidx = -1;
+    iterator->lsidx = 0;
     iterator->hashmap = hashmap;
 
     //walk to first entry in hash map list
-    while(hashmap->list[++iterator->lsidx] == NULL) ;
+    while(hashmap->list[iterator->lsidx] == NULL) iterator->lsidx++;
     iterator->current = hashmap->list[iterator->lsidx];
 
     iterator->next_one = next_entry;

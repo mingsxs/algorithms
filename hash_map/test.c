@@ -169,11 +169,10 @@ int main(int argc, char **argv)
         return -1;
     }
     printf("reset loop starts here:\n");
-    iterator = map->iterator;
     count = 0;
     while(--i > 0) {
         printf("{ key: %s, value: %s, key raw hashcode: %lu, list index: %u, conflicts: %u, count:%d }\n",
-            (char *)iterator->current->key, (char *)iterator->current->value, iterator->current->hashcode, iterator->lsidx, iterator->hashmap->conflicts, ++count);
+            (char *)map->iterator->current->key, (char *)map->iterator->current->value, map->iterator->current->hashcode, map->iterator->lsidx, map->iterator->hashmap->conflicts, ++count);
         iterator->next_one(iterator);
     }
 
