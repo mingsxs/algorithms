@@ -11,9 +11,9 @@ typedef enum {
 } avl_status;
 
 /* forward declarations */
-static void avl_insert(AVLTree tree, void *val);
-static bool avl_remove(AVLTree tree, void *val);
-static bool avl_exists(AVLTree tree, void *val);
+static void avl_insert_node(AVLTree tree, void *val);
+static bool avl_remove_node(AVLTree tree, void *val);
+static bool avl_exists_node(AVLTree tree, void *val);
 static int avl_nodecmp(void *val1, void *val2);
 static void avl_traverse(AVLTree tree);
 static void avl_free(AVLTree *treeptr);
@@ -217,9 +217,9 @@ init_avl_tree(COMPARE nodecmp)
     /* bind AVL methods */
     tree->nodes = tree->depth = 0;
     tree->root = NULL;
-    tree->insert = avl_insert;
-    tree->remove = avl_remove;
-    tree->exists = avl_exists;
+    tree->insert = avl_insert_node;
+    tree->remove = avl_remove_node;
+    tree->exists = avl_exists_node;
     tree->nodecmp = nodecmp? nodecmp:avl_nodecmp;
     tree->traverse = avl_traverse;
     tree->freespace = avl_free;
@@ -244,7 +244,7 @@ avl_walk_insert(AVLNode *walkptr, void *val)
         // inserted
         return AVLTREE_CHANGED;
     }
-    AVLNode *nextptr = NULL;
+    AVLNode *nextptr = NULL;  // next walkptr
     int diff = avl_nodecmp((*walkptr)->value, val);
     // found a duplicate
     if(diff == 0) {
@@ -259,7 +259,7 @@ avl_walk_insert(AVLNode *walkptr, void *val)
         nextptr = &(*walkptr)->right_kid;
     }
 
-    // recursively continue downwards
+    // continue downwards recursively
     avl_status status = nextptr? avl_walk_insert(nextptr, val):AVLTREE_UNCHANGED;
 
     // update depth and do adjust
@@ -300,10 +300,10 @@ avl_walk_insert(AVLNode *walkptr, void *val)
 static avl_status
 avl_walk_remove(AVLNode *walkptr, void *val, AVLNode *rm, int *search_direction)
 {
-    AVLNode *nextptr = NULL;    // next node pointer
+    AVLNode *nextptr = NULL;    // next walkptr
     /* still finding the remove node */
     if(*rm == NULL) {
-        // remove node not found
+        // remove node doesn't exist
         if(*walkptr == NULL)
             return AVLTREE_UNCHANGED;
 
@@ -368,9 +368,9 @@ avl_walk_remove(AVLNode *walkptr, void *val, AVLNode *rm, int *search_direction)
             }
         }
     }
-    /* go downwards recursively */
+    /* continue downwards recursively */
     avl_status status = nextptr? avl_walk_remove(nextptr, val, rm, search_direction):AVLTREE_UNCHANGED;
-    /* if node has been removed */
+    /* if node has been removed, check bf and do balance if balance lost */
     if(status == AVLTREE_CHANGED) {
         update_depth(*walkptr);
         int bf = balance_factor(*walkptr);
@@ -400,7 +400,7 @@ avl_walk_remove(AVLNode *walkptr, void *val, AVLNode *rm, int *search_direction)
 
 /* insert node to AVL tree */
 static void
-avl_insert(AVLTree tree, void *val)
+avl_insert_node(AVLTree tree, void *val)
 {
     avl_status status = avl_walk_insert(&tree->root, val);
     if(status==AVLTREE_CHANGED || status==AVLTREE_ADJUSTED) {
@@ -411,7 +411,7 @@ avl_insert(AVLTree tree, void *val)
 
 /* remove node from AVL tree */
 static bool
-avl_remove(AVLTree tree, void *val)
+avl_remove_node(AVLTree tree, void *val)
 {
     int direction = 0;
     AVLNode rm = NULL;
@@ -427,7 +427,7 @@ avl_remove(AVLTree tree, void *val)
 
 /* exists method */
 static bool
-avl_exists(AVLTree tree, void *val)
+avl_exists_node(AVLTree tree, void *val)
 {
     return avl_search_node(tree->root, val)? true:false;
 }
