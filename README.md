@@ -7,4 +7,5 @@ A set of common algorithm coding practices.
 - [x] 10 common sort algorithms.  
 - [x] some non-cryptographic hash functions.   
 - [x] hash map.  
-- [ ] hash map based duplicates-remove.  
+- [x] hash map based duplicates-remove.  
+- [x] AVL tree.
