@@ -1,11 +1,5 @@
 #include "avl.h"
 
-/* macros doing swap */
-#define SWAP(x, y) do { \
-    *(int64_t *)x = *(int64_t *)x ^ *(int64_t *)y;       \
-    *(int64_t *)y = *(int64_t *)x ^ *(int64_t *)y;       \
-    *(int64_t *)x = *(int64_t *)x ^ *(int64_t *)y; } while(0)
-
 typedef enum {
     AVLTREE_UNCHANGED = 0,
     AVLTREE_CHANGED = 1,
@@ -35,7 +29,7 @@ static void update_depth(AVLNode node);
 static int balance_factor(AVLNode node);
 
 static void avl_walk_free(AVLNode *nodeptr);
-static void avl_walk_print(AVLNode node, unsigned int nodes);
+static void avl_walk_print(AVLNode node, unsigned int *nodes);
 static AVLNode avl_search_node(AVLNode node, void *val);
 static avl_status avl_walk_insert(AVLNode *walkptr, void *val);
 static avl_status avl_walk_remove(AVLNode *walkptr, void *val, AVLNode *rm, int *search_direction);
@@ -56,16 +50,15 @@ avl_walk_free(AVLNode *nodeptr)
 
 /* traverse all nodes */
 static void
-avl_walk_print(AVLNode node, unsigned int nodes)
+avl_walk_print(AVLNode node, unsigned int *nodes)
 {
-    // start a static counter
-    static unsigned int counter = 0;
     if(node == NULL)
         return ;
 
     avl_walk_print(node->left_kid, nodes);
-
-    printf(++counter==nodes? "%lld, ":"%lld", (int64_t)node->value);
+    --*nodes;
+    for(int i=0; i<node->occurance; i++)
+        printf(*nodes>0? "%lld, ":"%lld", (int64_t)node->value);
 
     avl_walk_print(node->right_kid, nodes);
 }
@@ -149,6 +142,9 @@ LL_Rotate(AVLNode *nodeptr)
 #endif
     // update lson depth
     update_depth(lson);
+
+    /* 3. update father node */
+    *nodeptr = lson;
 }
 
 /* inserting to right subtree of node's right kid, then tree lose balance, do RR rotate */
@@ -188,6 +184,9 @@ RR_Rotate(AVLNode *nodeptr)
 #endif
     // update rson depth
     update_depth(rson);
+
+    /* 3. update father node */
+    *nodeptr = rson;
 }
 
 /* inserting to right subtree of node's left kid, then tree lose balance, do LR rotate */
@@ -234,49 +233,30 @@ init_avl_tree(COMPARE nodecmp)
 static avl_status
 avl_walk_insert(AVLNode *walkptr, void *val)
 {
-    AVLNode *nodeptr = NULL, *nextptr = NULL;
-    do {
-        if(*walkptr == NULL) {
-            nodeptr = walkptr;
-            break;
-        }
-        int diff = avl_nodecmp((*walkptr)->value, val);
-        // found a duplicate
-        if(diff == 0) {
-            (*walkptr)->occurance ++;
-            // just return, don't insert
-            return AVLTREE_UNCHANGED;
-        }
-        // val less than node, go left kid
-        if(diff > 0) {
-            if((*walkptr)->left_kid) {
-                // if left kid is not NULL, go downwards
-                nextptr = &(*walkptr)->left_kid;
-            } else {
-                // insert to node's left kid
-                nodeptr = &(*walkptr)->left_kid;
-            }
-        } else {
-            if((*walkptr)->right_kid) {
-                // if right kid is not NULL, go downwards
-                nextptr = &(*walkptr)->right_kid;
-            } else {
-                // insert to node's right kid
-                nodeptr = &(*walkptr)->right_kid;
-            }
-        }
-    } while(0);
-
-    // walk to leaf node, do insert
-    if(nodeptr) {
-        AVLNode new = newAVLNode();
-        new->value = val;
-        new->depth = 1;
-        new->occurance = 1;
-        new->left_kid = new->right_kid = NULL;
-        *nodeptr = new;
+    // walk to a leaf node, do insert
+    if(*walkptr == NULL) {
+        AVLNode node = newAVLNode();
+        node->value = val;
+        node->depth = 1;
+        node->occurance = 1;
+        node->left_kid = node->right_kid = NULL;
+        *walkptr = node;
         // inserted
         return AVLTREE_CHANGED;
+    }
+    AVLNode *nextptr = NULL;
+    int diff = avl_nodecmp((*walkptr)->value, val);
+    // found a duplicate
+    if(diff == 0) {
+        (*walkptr)->occurance ++;
+        // just return, don't insert
+        return AVLTREE_UNCHANGED;
+    }
+    // val less than node, go left kid
+    if(diff > 0) {
+        nextptr = &(*walkptr)->left_kid;
+    } else {
+        nextptr = &(*walkptr)->right_kid;
     }
 
     // recursively continue downwards
@@ -357,29 +337,31 @@ avl_walk_remove(AVLNode *walkptr, void *val, AVLNode *rm, int *search_direction)
     } else {
         // already found remove node
         if(nextptr == NULL) {
-            AVLNode remove = NULL;
+            bool found = false;
             if(*search_direction == 1) {
                 // searching the predecessor
                 if((*walkptr)->right_kid == NULL) {
-                    remove = *walkptr;
-                    *walkptr = (*walkptr)->left_kid;
+                    // found the predecessor
+                    found = true;
                 } else {
                     nextptr = &(*walkptr)->right_kid;
                 }
             } else if(*search_direction == -1) {
                 // searching the successor
                 if((*walkptr)->left_kid == NULL) {
-                    remove = *walkptr;
-                    *walkptr = (*walkptr)->right_kid;
+                    // found the successor
+                    found = true;
                 } else {
                     nextptr = &(*walkptr)->left_kid;
                 }
             }
-            // found the predecessor/successor, do swap and remove
-            if(remove) {
-                SWAP(&(*rm)->value, &remove->value);
-                SWAP(&(*rm)->occurance, &remove->occurance);
-                remove->value = NULL;
+            // do copy and remove node
+            if(found) {
+                (*rm)->value = (*walkptr)->value;
+                (*rm)->occurance = (*walkptr)->occurance;
+                (*walkptr)->value = NULL;
+                AVLNode remove = *walkptr;
+                *walkptr = *search_direction==1? remove->left_kid:remove->right_kid;
                 free(remove);
 
                 return AVLTREE_CHANGED;
@@ -421,10 +403,10 @@ static void
 avl_insert(AVLTree tree, void *val)
 {
     avl_status status = avl_walk_insert(&tree->root, val);
-    if(status==AVLTREE_CHANGED || status==AVLTREE_ADJUSTED)
+    if(status==AVLTREE_CHANGED || status==AVLTREE_ADJUSTED) {
         tree->nodes ++;
-
-    tree->depth = tree->root->depth;
+        tree->depth = tree->root->depth;
+    }
 }
 
 /* remove node from AVL tree */
@@ -432,15 +414,14 @@ static bool
 avl_remove(AVLTree tree, void *val)
 {
     int direction = 0;
-    AVLNode *rm = NULL;
+    AVLNode rm = NULL;
 
-    avl_status status = avl_walk_remove(&tree->root, val, rm, &direction);
+    avl_status status = avl_walk_remove(&tree->root, val, &rm, &direction);
     if(status==AVLTREE_UNCHANGED)
         return false;
 
     tree->nodes --;
     tree->depth = tree->root->depth;
-
     return true;
 }
 
@@ -462,10 +443,11 @@ avl_nodecmp(void *val1, void *val2)
 static void
 avl_traverse(AVLTree tree)
 {
-    printf("WALKING:\n");
-    printf("\t[ ");
-    avl_walk_print(tree->root, tree->nodes);
-    printf(" ]\n");
+    unsigned int nodes = tree->nodes;
+    printf("\nWalking Through:\n");
+    printf("    [ ");
+    avl_walk_print(tree->root, &nodes);
+    printf(" ]\n\n");
 }
 
 /* free malloc space */
